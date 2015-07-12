@@ -12,10 +12,11 @@ You can also optionally just echo the output to the console.
 
     -i : The ASE file to read from
     -o : The location of the plist file you want to use
+    -p : The prefix to search for—swatches without this will be ignored (optional)
     -f : Use floats instead of integers for RGB values (e.g. 0.5 instead of 127)
     -h : Output hex values
     -e : Echo the output (no writing to file)
-    -p : The prefix to search for—swatches without this will be ignored
+
 
 
 ## Installation
