@@ -14,7 +14,7 @@
 $scriptVersion = "1.0";
 
 // Listen to the shell. Peer inside. Turn it upside down and shake the options out.
-$options = getopt('i:o:p:ehf');
+$options = getopt('i:o:p:E:ehf');
 
 $useFloats = ( isset( $options['f'] ) ) ? true : false;
 $useHex = ( isset( $options['h'] ) ) ? true : false;
@@ -22,6 +22,7 @@ $echo = ( isset( $options['e'] ) ) ? true : false;
 $input = (isset( $options['i'] ) )  ? $options['i'] : false;
 $output = (isset( $options['o'] ) ) ? $options['o'] : false;
 $prefix = (isset( $options['p'] ) )  ? $options['p'] : false;
+$enum = (isset( $options['E'] ) )  ? $options['E'] : false;
 
 if ( !$output ) {
 	$output = "output.plist";
@@ -281,9 +282,13 @@ $names = $a->getNames();
 
 $doc = new PlistCreator();
 
+$enumString = "enum $enum : String, VTAAppearanceKey {\n";
+
+
 echo "\n";
 for ( $i = 0; $i < sizeOf( $palette ); $i ++ ) {
 	if ( substr($names[$i], 0, strlen($prefix)) == $prefix ) {
+		$enumString .= "\tcase $names[$i] = \"$names[$i]\"\n";
 		if ( $echo ) {
 			echo $names[$i] . " " . $palette[$i] . "\n";
 		} else {
@@ -292,8 +297,16 @@ for ( $i = 0; $i < sizeOf( $palette ); $i ++ ) {
 	}
 }
 
+$enumString .= "}\n";
+
+if ( $enum ) {
+	echo $enumString;
+}
+
 try {
 	$doc->save( $output );	
+
+
 } catch (Exception $e ) {
 	echo "Error saving output.";
 }
