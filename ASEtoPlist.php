@@ -14,15 +14,18 @@
 $scriptVersion = "1.0";
 
 // Listen to the shell. Peer inside. Turn it upside down and shake the options out.
-$options = getopt('i:o:p:E:ehf');
+$options = getopt('i:o:u:p:E:ehf');
 
 $useFloats = ( isset( $options['f'] ) ) ? true : false;
 $useHex = ( isset( $options['h'] ) ) ? true : false;
 $echo = ( isset( $options['e'] ) ) ? true : false;
 $input = (isset( $options['i'] ) )  ? $options['i'] : false;
 $output = (isset( $options['o'] ) ) ? $options['o'] : false;
+$update = (isset( $options['u'] ) ) ? $options['u'] : false;
 $prefix = (isset( $options['p'] ) )  ? $options['p'] : false;
 $enum = (isset( $options['E'] ) )  ? $options['E'] : false;
+
+$output = ( $update ) ? $update : $output;
 
 if ( !$output ) {
 	$output = "output.plist";
@@ -32,7 +35,8 @@ if ( !$input ) {
 	echo "\nASE to plist converter Version $scriptVersion\n";
 	echo "\nERROR: You must provide a valid input path\n\n";
 	echo "-i : The ASE file to read from.\n";
-	echo "-o : The location of the plist file you want to use.\n";
+	echo "-o : Write a new plist to this location.\n";
+	echo "-u : Update the plist at this location\n";	
 	echo "-f : Use floats instead of integers for RGB values (e.g. 0.5 instead of 127).\n";
 	echo "-p : he prefix to search for—swatches without this will be ignored\n";
 	die();
@@ -282,6 +286,13 @@ $names = $a->getNames();
 
 $doc = new PlistCreator();
 
+if ( $update ) {
+	$doc->updateDocument( $update );
+} else {
+	$doc->newDocument();
+}
+
+
 $enumString = "enum $enum : String, VTAAppearanceKey {\n";
 
 
@@ -292,7 +303,8 @@ for ( $i = 0; $i < sizeOf( $palette ); $i ++ ) {
 		if ( $echo ) {
 			echo $names[$i] . " " . $palette[$i] . "\n";
 		} else {
-			$doc->addElement( $names[$i], $palette[$i]);  		
+			$overwrite = ( $update ) ? true : false;
+			$doc->addElement( $names[$i], $palette[$i], $overwrite);  		
 		}
 	}
 }
@@ -305,8 +317,6 @@ if ( $enum ) {
 
 try {
 	$doc->save( $output );	
-
-
 } catch (Exception $e ) {
 	echo "Error saving output.";
 }
