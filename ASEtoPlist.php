@@ -27,10 +27,6 @@ $enum = (isset( $options['E'] ) )  ? $options['E'] : false;
 
 $output = ( $update ) ? $update : $output;
 
-if ( !$output ) {
-	$output = "output.plist";
-}
-
 if ( !$input ) {
 	echo "\nASE to plist converter Version $scriptVersion\n";
 	echo "\nERROR: You must provide a valid input path\n\n";
@@ -293,13 +289,18 @@ if ( $update ) {
 }
 
 
-$enumString = "enum $enum : String, VTAAppearanceKey {\n";
+$enumString = "enum $enum : String, VTAAppearancePlistKey {\n";
 
 
 echo "\n";
 for ( $i = 0; $i < sizeOf( $palette ); $i ++ ) {
 	if ( substr($names[$i], 0, strlen($prefix)) == $prefix ) {
-		$enumString .= "\tcase $names[$i] = \"$names[$i]\"\n";
+		$enumName = $names[$i];
+		if ( substr( $names[$i], 0, strlen($enum)) == $enum ) {
+			$enumName = str_replace($enum, '', $names[$i]);
+		}
+
+		$enumString .= "\tcase $enumName = \"$names[$i]\"\n";
 		if ( $echo ) {
 			echo $names[$i] . " " . $palette[$i] . "\n";
 		} else {
@@ -315,9 +316,13 @@ if ( $enum ) {
 	echo $enumString;
 }
 
-try {
-	$doc->save( $output );	
-} catch (Exception $e ) {
-	echo "Error saving output.";
+if ( $output ) {
+	try {
+		$doc->save( $output );	
+	} catch (Exception $e ) {
+		echo "Error saving output.";
+	}
+
+
 }
 
